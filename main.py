@@ -1,31 +1,34 @@
 from datetime import date
 from typing import List
 
-class Absent_Day:
-    def __init__(self, begin_date: date, end_date: date, pays_first_day: bool):
+class Relevant_Day:
+    def __init__(self, begin_date: date, end_date: date, is_inclusive: bool):
         self.begin_date = begin_date
         self.end_date = end_date
-        self.pays_first_day = pays_first_day
+        self.is_inclusive = is_inclusive
 
     def calc_num_of_days(self) -> int:
-        return (self.end_date - self.begin_date).days + int(not self.pays_first_day)
+        """ Calculate the duration between two dates. """
+        return (self.end_date - self.begin_date).days + int(not self.is_inclusive)
 
 class Payee:
-    def __init__(self, name: str, absent_days: List[Absent_Day]):
+    """ A shareholder of some duty. """
+    def __init__(self, name: str, absent_days: List[Relevant_Day]):
         self.name = name
         self.absent_days = absent_days
         self.billable_amount = 0
 
     def calc_total_absent_days(self) -> int:
+        """ Iterates through the list of days and sum the number of days. """
         total_day = 0
         for absent_day in self.absent_days:
             total_day += absent_day.calc_num_of_days()
         return total_day
 
 
-def calc_share_of_costs(begin_date: date, end_date: date, is_inclusive: bool, cost: float, payees: List[Payee]):
-    duration = (end_date - begin_date).days + int(not is_inclusive)
-    number_of_payees = len(payees)
+def calc_share_of_costs(period: Relevant_Day, cost: float, payees: List[Payee]):
+    """ Returns a list of payees with their billable amount property set. """
+    duration = (period.end_date - period.begin_date).days + int(not period.is_inclusive)
 
     billable_days = 0
     for payee in payees:
@@ -37,32 +40,23 @@ def calc_share_of_costs(begin_date: date, end_date: date, is_inclusive: bool, co
     return payees
 
 def main():
-    begin_date = date(2019, 3, 1)
-    end_date = date(2019, 5, 31)
+    """ Main function."""
 
-    # Brian's share
-    brian_begin_date = date(2019, 3, 1)
-    brian_end_date = date(2019, 5, 12)
+    period = Relevant_Day(date(2019, 3, 1), date(2019, 5, 31), True)
 
-    # Raymond's share
-    raymond_0_begin_date = date(2019, 3, 9)
-    raymond_0_end_date = date(2019, 5, 12)
-    raymond_1_begin_date = date(2019, 5, 28)
-    raymond_1_end_date = date(2019, 5, 31)
-    
     payees = [
-            Payee('Sean', []), 
-             Payee('Chris', []),
-             Payee('Brian', [ 
-                 Absent_Day(date(2019, 5, 12), date(2019, 5, 31), False)
-                 ]),
-             Payee('Raymond', [ 
-                 Absent_Day(date(2019, 5, 9), date(2019, 5, 18), False),
-                 Absent_Day(date(2019, 5, 28), date(2019, 5, 31), False),
-                 ]),
-            ]
+        Payee('Sean', []),
+        Payee('Chris', []),
+        Payee('Brian', [
+            Relevant_Day(date(2019, 5, 12), date(2019, 5, 31), False)
+        ]),
+        Payee('Raymond', [
+            Relevant_Day(date(2019, 5, 9), date(2019, 5, 18), False),
+            Relevant_Day(date(2019, 5, 28), date(2019, 5, 31), False),
+        ]),
+    ]
 
-    transformed_payees = calc_share_of_costs(begin_date, end_date, True, 340.53, payees)
+    transformed_payees = calc_share_of_costs(period, 340.53, payees)
 
     for payee in transformed_payees:
         print(f'{payee.name} : {payee.billable_amount}')
