@@ -9,7 +9,7 @@ class Relevant_Day:
 
     def calc_num_of_days(self) -> int:
         """ Calculate the duration between two dates. """
-        return (self.end_date - self.begin_date).days + int(not self.is_inclusive)
+        return (self.end_date - self.begin_date).days + int(self.is_inclusive)
 
 class Payee:
     """ A shareholder of some duty. """
@@ -28,8 +28,7 @@ class Payee:
 
 def calc_share_of_costs(period: Relevant_Day, cost: float, payees: List[Payee]):
     """ Returns a list of payees with their billable amount property set. """
-    duration = (period.end_date - period.begin_date).days + int(not period.is_inclusive)
-
+    duration = period.calc_num_of_days()
     billable_days = 0
     for payee in payees:
         billable_days += duration - payee.calc_total_absent_days()
@@ -48,17 +47,17 @@ def main():
         Payee('Sean', []),
         Payee('Chris', []),
         Payee('Brian', [
-            Relevant_Day(date(2019, 5, 12), date(2019, 5, 31), False)
+            Relevant_Day(date(2019, 5, 12), date(2019, 5, 31), True)
         ]),
         Payee('Raymond', [
-            Relevant_Day(date(2019, 5, 9), date(2019, 5, 18), False),
-            Relevant_Day(date(2019, 5, 28), date(2019, 5, 31), False),
+            Relevant_Day(date(2019, 5, 9), date(2019, 5, 18), True),
+            Relevant_Day(date(2019, 5, 28), date(2019, 5, 31), True),
         ]),
     ]
 
     transformed_payees = calc_share_of_costs(period, 340.53, payees)
 
     for payee in transformed_payees:
-        print(f'{payee.name} : {payee.billable_amount}')
+        print(f'{payee.name} for {period.calc_num_of_days() - payee.calc_total_absent_days()} / {period.calc_num_of_days()} days: {payee.billable_amount}')
 
 main()
