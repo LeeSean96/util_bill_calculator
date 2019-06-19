@@ -1,3 +1,6 @@
 # temp files
 *.swp
 *.swo
+
+# python-generated files
+__pycache__/
