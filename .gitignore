@@ -2,5 +2,8 @@
 *.swp
 *.swo
 
+# Tag files
+*.tags
+
 # python-generated files
 __pycache__/
